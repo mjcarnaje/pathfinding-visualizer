@@ -1,23 +1,24 @@
 import styles from "../styles/Node.module.css";
+import { INode } from "../types/node.types";
 
-interface Props {
-  colIdx: number;
-  rowIdx: number;
-  isStart: boolean;
-  isFinish: boolean;
-}
-
-const Node: React.FC<Props> = ({ colIdx, rowIdx, isStart, isFinish }) => {
-  console.log(isStart);
-
+const Node: React.FC<INode> = ({
+  rowIdx,
+  colIdx,
+  isStart,
+  isFinish,
+  isWall,
+}) => {
   return (
     <div
+      id={`node-${rowIdx}-${colIdx}`}
       className={`${styles.node} ${
         isStart
           ? styles["node-start"]
           : isFinish
           ? styles["node-finish"]
-          : styles["node-wall"]
+          : isWall
+          ? styles["node-wall"]
+          : ""
       }`}
     ></div>
   );

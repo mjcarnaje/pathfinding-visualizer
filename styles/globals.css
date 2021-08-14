@@ -13,3 +13,7 @@ html {
   box-sizing: border-box;
   font-family: "Inter", sans-serif;
 }
+
+.node-visited {
+  background-color: violet;
+}
