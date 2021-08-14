@@ -1,15 +1,13 @@
-import { useState } from "react";
 import type { NextPage } from "next";
-
-import Node from "../components/Node";
-import styles from "../styles/Home.module.css";
-import { INode } from "../types/node.types";
+import { useRef, useState } from "react";
 import { dijkstra } from "../algorigthms/dijkstra";
+import Node from "../components/Node";
+import { INode } from "../types/node.types";
 
 const NUM_ROWS: number = 24;
 const NUM_COLS: number = 50;
-const START_NODE: [number, number] = [10, 15];
-const FINISH_NODE: [number, number] = [10, 35];
+const START_NODE: [number, number] = [0, 0];
+const FINISH_NODE: [number, number] = [23, 49];
 
 const createNode = (colIdx: number, rowIdx: number): INode => {
   return {
@@ -50,15 +48,12 @@ function generateEmptyGrid() {
 
 const Home: NextPage = () => {
   const [nodes, setNodes] = useState(generateEmptyGrid);
+  const nodesRef = useRef<Record<string, HTMLDivElement | null>>({});
 
   const animateDijkstra = (visitedNodesInOrder: INode[]): void => {
     for (let idx = 0; idx < visitedNodesInOrder.length; idx++) {
       setTimeout(() => {
         const node = visitedNodesInOrder[idx];
-
-        document.getElementById(
-          `node-${node.rowIdx}-${node.colIdx}`
-        )!.className = "node node-visited";
       }, 10 * idx);
     }
   };
@@ -72,15 +67,24 @@ const Home: NextPage = () => {
   };
 
   return (
-    <div className={styles.container}>
+    <div className="container">
       <button onClick={() => visualizeDijkstra()}>start</button>
+
       <div style={{ margin: 10 }}>
         {nodes.map((rows, rowsIdx) => {
           return (
             <div key={rowsIdx}>
-              {rows.map((row, rowIdx) => (
-                <Node key={rowIdx} {...row} />
-              ))}
+              {rows.map((col, colIdx) => {
+                const key = `${rowsIdx}-${colIdx}`;
+
+                return (
+                  <Node
+                    key={key}
+                    ref={(nodeEl) => (nodesRef.current[key] = nodeEl)}
+                    {...col}
+                  />
+                );
+              })}
             </div>
           );
         })}

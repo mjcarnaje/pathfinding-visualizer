@@ -1,27 +1,18 @@
-import styles from "../styles/Node.module.css";
+import { forwardRef } from "react";
 import { INode } from "../types/node.types";
 
-const Node: React.FC<INode> = ({
-  rowIdx,
-  colIdx,
-  isStart,
-  isFinish,
-  isWall,
-}) => {
-  return (
-    <div
-      id={`node-${rowIdx}-${colIdx}`}
-      className={`${styles.node} ${
-        isStart
-          ? styles["node-start"]
-          : isFinish
-          ? styles["node-finish"]
-          : isWall
-          ? styles["node-wall"]
-          : ""
-      }`}
-    ></div>
-  );
-};
+const Node = forwardRef<HTMLDivElement, INode>(
+  ({ isStart, isFinish, isWall }, ref) => {
+    const extraClassNames = isStart
+      ? "node-start"
+      : isFinish
+      ? "node-finish"
+      : isWall
+      ? "node-wall"
+      : "";
+
+    return <div ref={ref} className={`node ${extraClassNames}`}></div>;
+  }
+);
 
 export default Node;
