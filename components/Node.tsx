@@ -1,8 +1,13 @@
-import { forwardRef } from "react";
+import { forwardRef, HTMLAttributes } from "react";
 import { INode } from "../types/node.types";
 
-const Node = forwardRef<HTMLDivElement, INode>(
-  ({ isStart, isFinish, isWall }, ref) => {
+type Props = INode & HTMLAttributes<HTMLDivElement>;
+
+const Node = forwardRef<HTMLDivElement, Props>(
+  (
+    { isStart, isFinish, isWall, onMouseDown, onMouseEnter, onMouseUp },
+    ref
+  ) => {
     const extraClassNames = isStart
       ? "node-start"
       : isFinish
@@ -11,7 +16,15 @@ const Node = forwardRef<HTMLDivElement, INode>(
       ? "node-wall"
       : "";
 
-    return <div ref={ref} className={`node ${extraClassNames}`}></div>;
+    return (
+      <div
+        ref={ref}
+        className={`node ${extraClassNames}`}
+        onMouseDown={onMouseDown}
+        onMouseEnter={onMouseEnter}
+        onMouseUp={onMouseUp}
+      ></div>
+    );
   }
 );
 

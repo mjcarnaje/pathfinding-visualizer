@@ -1,17 +1,7 @@
 import { INode } from "../types/node.types";
 
-function flattenedNodes(nodes: INode[][]): INode[] {
-  const newNodes = [];
-  for (const rowNode of nodes) {
-    for (const node of rowNode) {
-      newNodes.push(node);
-    }
-  }
-  return newNodes;
-}
-
 function sortNodesByDistance(unvisitedNodes: INode[]) {
-  return unvisitedNodes.sort((nodeA, nodeB) => nodeA.distance - nodeB.distance);
+  unvisitedNodes.sort((nodeA, nodeB) => nodeA.distance - nodeB.distance);
 }
 
 function updateUnvisitedNeighbors(closestNode: INode, nodes: INode[][]) {
@@ -47,11 +37,11 @@ export function dijkstra(
 
   startNode.distance = 0;
 
-  let unVisitedNodes = flattenedNodes(nodes);
+  const unVisitedNodes = nodes.flat();
 
   // IF THERE ARE STILL UNVISITED NODE/s
   while (!!unVisitedNodes.length) {
-    unVisitedNodes = sortNodesByDistance(unVisitedNodes);
+    sortNodesByDistance(unVisitedNodes);
     // GET THE FIRST NODE AND REMOVE IT FROM THE ARRAY
     const closestNode = unVisitedNodes.shift()!;
     // IF WE ENCOUNTER A WALL, SKIP IT
@@ -65,7 +55,7 @@ export function dijkstra(
     // IF THE FINISH NODE IS FOUND THEN RETURN THE VISITED NODES ARRAY
     if (closestNode === finishNode) return visitedNodesInOrder;
 
-    unVisitedNodes = updateUnvisitedNeighbors(closestNode, nodes);
+    updateUnvisitedNeighbors(closestNode, nodes);
   }
 
   return visitedNodesInOrder;

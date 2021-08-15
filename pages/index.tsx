@@ -6,7 +6,7 @@ import { INode } from "../types/node.types";
 
 const NUM_ROWS: number = 24;
 const NUM_COLS: number = 50;
-const START_NODE: [number, number] = [0, 0];
+const START_NODE: [number, number] = [4, 4];
 const FINISH_NODE: [number, number] = [23, 49];
 
 const createNode = (colIdx: number, rowIdx: number): INode => {
@@ -48,13 +48,33 @@ function generateEmptyGrid() {
 
 const Home: NextPage = () => {
   const [nodes, setNodes] = useState(generateEmptyGrid);
+  const [mouseIsPressed, setMouseIsPressed] = useState(false);
+
   const nodesRef = useRef<Record<string, HTMLDivElement | null>>({});
+
+  const onMouseDown = (rowIdx: number, colIdx: number): void => {
+    const newNodes = withWallToggledGrid(nodes, rowIdx, colIdx);
+    setNodes(newNodes);
+    setMouseIsPressed(true);
+  };
+
+  const onMouseEnter = (rowIdx: number, colIdx: number): void => {
+    if (!mouseIsPressed) return;
+    const newNodes = withWallToggledGrid(nodes, rowIdx, colIdx);
+    setNodes(newNodes);
+  };
+
+  const onMouseUp = (): void => {
+    setMouseIsPressed(false);
+  };
 
   const animateDijkstra = (visitedNodesInOrder: INode[]): void => {
     for (let idx = 0; idx < visitedNodesInOrder.length; idx++) {
       setTimeout(() => {
-        const node = visitedNodesInOrder[idx];
-      }, 10 * idx);
+        const { rowIdx, colIdx } = visitedNodesInOrder[idx];
+        nodesRef.current[`${rowIdx}-${colIdx}`]!.className =
+          "node node-visited";
+      }, 4 * idx);
     }
   };
 
@@ -71,16 +91,19 @@ const Home: NextPage = () => {
       <button onClick={() => visualizeDijkstra()}>start</button>
 
       <div style={{ margin: 10 }}>
-        {nodes.map((rows, rowsIdx) => {
+        {nodes.map((rows, rowIdx) => {
           return (
-            <div key={rowsIdx}>
+            <div key={rowIdx}>
               {rows.map((col, colIdx) => {
-                const key = `${rowsIdx}-${colIdx}`;
+                const key = `${rowIdx}-${colIdx}`;
 
                 return (
                   <Node
                     key={key}
                     ref={(nodeEl) => (nodesRef.current[key] = nodeEl)}
+                    onMouseDown={() => onMouseDown(rowIdx, colIdx)}
+                    onMouseEnter={() => onMouseEnter(rowIdx, colIdx)}
+                    onMouseUp={onMouseUp}
                     {...col}
                   />
                 );
