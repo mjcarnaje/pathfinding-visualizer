@@ -1,9 +1,9 @@
 interface Props {
   visualizeAlgorithm: () => void;
-  resetBoard: () => void;
+  clearBoard: () => void;
 }
 
-const Nav: React.FC<Props> = ({ visualizeAlgorithm, resetBoard }) => {
+const Nav: React.FC<Props> = ({ visualizeAlgorithm, clearBoard }) => {
   return (
     <nav className="bg-white shadow">
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
@@ -36,7 +36,7 @@ const Nav: React.FC<Props> = ({ visualizeAlgorithm, resetBoard }) => {
               Visualize
             </button>
             <button
-              onClick={resetBoard}
+              onClick={clearBoard}
               className="bg-gray-900 text-white rounded-md py-2 px-3 inline-flex items-center text-sm font-medium"
             >
               <svg
@@ -53,7 +53,7 @@ const Nav: React.FC<Props> = ({ visualizeAlgorithm, resetBoard }) => {
                   d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
                 />
               </svg>
-              Reset
+              Clear Board
             </button>
           </div>
         </div>
