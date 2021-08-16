@@ -1,14 +1,15 @@
 import type { NextPage } from "next";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { dijkstra } from "../algorigthms/dijkstra";
+import Nav from "../components/Nav";
 import Node from "../components/Node";
 import { INode, Tuple } from "../types";
 
 // DEFAULT
-const NUM_ROWS: number = 25;
-const NUM_COLS: number = 50;
+const NUM_ROWS: number = 20;
+const NUM_COLS: number = 60;
 const START_COOR: Tuple = [5, 5];
-const FINISH_COOR: Tuple = [20, 45];
+const FINISH_COOR: Tuple = [15, 55];
 
 const isEqual = (a: Tuple, b: Tuple) => JSON.stringify(a) === JSON.stringify(b);
 
@@ -73,7 +74,11 @@ const Home: NextPage = () => {
       setTimeout(() => {
         const { row, col } = visitedNodesInOrder[nodeIdx];
         const nodeId = `${row}-${col}`;
-        nodesRef.current[nodeId]!.className = "node node-visited";
+
+        const className =
+          "w-5 h-5 inline-flex justify-center place-items-center border border-blue-500 bg-green-300 text-green-800";
+
+        nodesRef.current[nodeId]!.className = className;
       }, 4 * nodeIdx);
     }
   };
@@ -92,15 +97,11 @@ const Home: NextPage = () => {
   };
 
   return (
-    <div className="container">
-      <div className="button-container">
-        <button onClick={visualizeAlgorithm}>Visualize</button>
-        <button onClick={resetBoard}>Reset</button>
-      </div>
-
-      <div style={{ margin: 10 }}>
-        {nodes.map((rows, rowIdx) => {
-          return (
+    <div className="min-h-screen">
+      <Nav visualizeAlgorithm={visualizeAlgorithm} resetBoard={resetBoard} />
+      <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div className="my-8 grid place-content-center">
+          {nodes.map((rows, rowIdx) => (
             <div key={rowIdx}>
               {rows.map((col, colIdx) => {
                 const key = `${rowIdx}-${colIdx}`;
@@ -117,8 +118,8 @@ const Home: NextPage = () => {
                 );
               })}
             </div>
-          );
-        })}
+          ))}
+        </div>
       </div>
     </div>
   );
