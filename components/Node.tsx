@@ -5,7 +5,17 @@ type Props = INode & HTMLAttributes<HTMLDivElement>;
 
 const Node = forwardRef<HTMLDivElement, Props>(
   (
-    { isStart, isFinish, isWall, onMouseDown, onMouseEnter, onMouseUp },
+    {
+      col,
+      row,
+      isStart,
+      isFinish,
+      isWall,
+      isVisited,
+      distance,
+      previousNode,
+      ...divEl
+    },
     ref
   ) => {
     const extraClassNames = isStart
@@ -17,13 +27,7 @@ const Node = forwardRef<HTMLDivElement, Props>(
       : "";
 
     return (
-      <div
-        ref={ref}
-        className={`node ${extraClassNames}`}
-        onMouseDown={onMouseDown}
-        onMouseEnter={onMouseEnter}
-        onMouseUp={onMouseUp}
-      ></div>
+      <div ref={ref} className={`node ${extraClassNames}`} {...divEl}></div>
     );
   }
 );

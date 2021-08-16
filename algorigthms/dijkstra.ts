@@ -18,12 +18,12 @@ function updateUnvisitedNeighbors(closestNode: INode, nodes: INode[][]) {
 function getUnvisitedNeighbors(closestNode: INode, nodes: INode[][]) {
   const neighbors = [];
 
-  const { colIdx, rowIdx } = closestNode;
+  const { col, row } = closestNode;
 
-  if (rowIdx > 0) neighbors.push(nodes[rowIdx - 1][colIdx]);
-  if (rowIdx < nodes.length - 1) neighbors.push(nodes[rowIdx + 1][colIdx]);
-  if (colIdx > 0) neighbors.push(nodes[rowIdx][colIdx - 1]);
-  if (colIdx < nodes[0].length - 1) neighbors.push(nodes[rowIdx][colIdx + 1]);
+  if (row > 0) neighbors.push(nodes[row - 1][col]);
+  if (row < nodes.length - 1) neighbors.push(nodes[row + 1][col]);
+  if (col > 0) neighbors.push(nodes[row][col - 1]);
+  if (col < nodes[0].length - 1) neighbors.push(nodes[row][col + 1]);
 
   return neighbors.filter((neighbor) => !neighbor.isVisited);
 }

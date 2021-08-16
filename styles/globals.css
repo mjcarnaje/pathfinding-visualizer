@@ -71,3 +71,13 @@ html {
 .node-wall {
   background-color: rgb(12, 53, 71);
 }
+
+.button-container {
+  display: flex;
+}
+
+.button-container button {
+  margin: 0 10px;
+  padding: 4px 6px;
+  font-family: "Inter";
+}
