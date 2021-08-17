@@ -1,21 +1,27 @@
 interface Props {
   visualizeAlgorithm: () => void;
   clearBoard: () => void;
+  disableButtons: boolean;
 }
 
-const Nav: React.FC<Props> = ({ visualizeAlgorithm, clearBoard }) => {
+const Nav: React.FC<Props> = ({
+  visualizeAlgorithm,
+  clearBoard,
+  disableButtons,
+}) => {
   return (
     <nav className="bg-white shadow">
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
+      <div className="px-2 mx-auto max-w-7xl sm:px-4 lg:px-8">
         <div className="relative flex justify-center h-16">
           <div className="my-auto space-x-4">
             <button
               onClick={visualizeAlgorithm}
-              className="bg-gray-900 text-white rounded-md py-2 px-3 inline-flex items-center text-sm font-medium"
+              disabled={disableButtons}
+              className="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-md"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="-ml-1 mr-2 h-5 w-5"
+                className="w-5 h-5 mr-2 -ml-1"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -37,11 +43,12 @@ const Nav: React.FC<Props> = ({ visualizeAlgorithm, clearBoard }) => {
             </button>
             <button
               onClick={clearBoard}
-              className="bg-gray-900 text-white rounded-md py-2 px-3 inline-flex items-center text-sm font-medium"
+              disabled={disableButtons}
+              className="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-md"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="-ml-1 mr-2 h-5 w-5"
+                className="w-5 h-5 mr-2 -ml-1"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"

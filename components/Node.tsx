@@ -5,9 +5,6 @@ import { classNames } from "../utils";
 type Props = { _onDragStart: () => void } & INode &
   TdHTMLAttributes<HTMLTableDataCellElement>;
 
-export const defaultNodeClassName =
-  "w-6 h-6 inline-flex justify-center place-items-center border border-blue-300";
-
 const Node = forwardRef<HTMLTableDataCellElement, Props>(
   (
     {
@@ -30,7 +27,7 @@ const Node = forwardRef<HTMLTableDataCellElement, Props>(
         ref={ref}
         className={classNames(
           isStart ? "" : isFinish ? "" : isWall ? "bg-gray-500" : "",
-          defaultNodeClassName
+          "w-6 h-6 inline-flex justify-center place-items-center border border-solid border-blue-300"
         )}
         {...tdEl}
       >
@@ -38,7 +35,7 @@ const Node = forwardRef<HTMLTableDataCellElement, Props>(
           <div draggable={true} onDragStart={_onDragStart}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="w-5 h-5 text-current"
+              className="w-5 h-5 text-[#14213d]"
               viewBox="0 0 20 20"
               fill="currentColor"
             >

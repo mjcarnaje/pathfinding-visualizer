@@ -2,7 +2,7 @@ import type { NextPage } from "next";
 import { DragEvent, useEffect, useRef, useState } from "react";
 import { dijkstra } from "../algorigthms/dijkstra";
 import Nav from "../components/Nav";
-import Node, { defaultNodeClassName } from "../components/Node";
+import Node from "../components/Node";
 import { INode, Tuple } from "../types";
 
 // DEFAULT
@@ -46,6 +46,7 @@ const Home: NextPage = () => {
     null
   );
   const [mouseIsPressed, setMouseIsPressed] = useState(false);
+  const [isRunning, setIsRunning] = useState(false);
 
   const nodesRef = useRef<Record<string, HTMLTableDataCellElement | null>>({});
 
@@ -99,16 +100,30 @@ const Home: NextPage = () => {
     }
   };
 
+  const removeVisitedClassNames = (_nodes: INode[][]): void => {
+    _nodes.flat().forEach((_node) => {
+      const { row, col } = _node;
+      const nodeId = `${row}-${col}`;
+      nodesRef.current[nodeId]?.classList.remove(
+        "bg-[#56cfe1]",
+        "motion-safe:animate-nodeVisitedAnimation"
+      );
+    });
+  };
+
   const animateAlgorithm = (sortedVisitedNodes: INode[]): void => {
     sortedVisitedNodes.forEach((node, nodeIdx) => {
       setTimeout(() => {
-        const { row, col } = node;
+        const { row, col, isStart, isFinish } = node;
         const nodeId = `${row}-${col}`;
         nodesRef.current[nodeId]?.classList.add(
-          "bg-green-300",
-          "text-green-800"
+          "bg-[#56cfe1]",
+          "motion-safe:animate-nodeVisitedAnimation"
         );
-      }, 5 * nodeIdx);
+
+        if (isStart) setIsRunning(true);
+        if (isFinish) setIsRunning(false);
+      }, 15 * nodeIdx);
     });
   };
 
@@ -116,22 +131,16 @@ const Home: NextPage = () => {
     const startNode = nodes[_startNode[0]][_startNode[1]];
     const finishNode = nodes[_finishNode[0]][_finishNode[1]];
     const sortedVisitedNodes = dijkstra(nodes, startNode, finishNode);
+    removeVisitedClassNames(nodes);
     animateAlgorithm(sortedVisitedNodes);
   };
 
   const clearBoard = (): void => {
     const newNodes = generateEmptyGrid();
     setNodes(newNodes);
+    removeVisitedClassNames(newNodes);
     _setStartNode(START_COOR);
     _setFinishNode(FINISH_COOR);
-    newNodes.flat().forEach((node) => {
-      const { row, col } = node;
-      const nodeId = `${row}-${col}`;
-      nodesRef.current[nodeId]?.classList.remove(
-        "bg-green-300",
-        "text-green-800"
-      );
-    });
   };
 
   useEffect(() => {
@@ -140,7 +149,11 @@ const Home: NextPage = () => {
 
   return (
     <div className="min-h-screen">
-      <Nav visualizeAlgorithm={visualizeAlgorithm} clearBoard={clearBoard} />
+      <Nav
+        visualizeAlgorithm={visualizeAlgorithm}
+        disableButtons={isRunning}
+        clearBoard={clearBoard}
+      />
       <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
         <div className="grid my-8 place-content-center">
           <table>
