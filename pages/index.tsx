@@ -99,29 +99,39 @@ const Home: NextPage = () => {
     }
   };
 
-  const animateAlgorithm = (visitedNodesInOrder: INode[]): void => {
-    for (let nodeIdx = 0; nodeIdx < visitedNodesInOrder.length; nodeIdx++) {
+  const animateAlgorithm = (sortedVisitedNodes: INode[]): void => {
+    sortedVisitedNodes.forEach((node, nodeIdx) => {
       setTimeout(() => {
-        const { row, col } = visitedNodesInOrder[nodeIdx];
+        const { row, col } = node;
         const nodeId = `${row}-${col}`;
-        nodesRef.current[nodeId]?.classList?.add(
+        nodesRef.current[nodeId]?.classList.add(
           "bg-green-300",
           "text-green-800"
         );
-      }, 4 * nodeIdx);
-    }
+      }, 5 * nodeIdx);
+    });
   };
 
   const visualizeAlgorithm = (): void => {
     const startNode = nodes[_startNode[0]][_startNode[1]];
     const finishNode = nodes[_finishNode[0]][_finishNode[1]];
-    const visitedNodesInOrder = dijkstra(nodes, startNode, finishNode);
-    animateAlgorithm(visitedNodesInOrder);
+    const sortedVisitedNodes = dijkstra(nodes, startNode, finishNode);
+    animateAlgorithm(sortedVisitedNodes);
   };
 
   const clearBoard = (): void => {
-    nodesRef.current = {};
-    setNodes(generateEmptyGrid);
+    const newNodes = generateEmptyGrid();
+    setNodes(newNodes);
+    _setStartNode(START_COOR);
+    _setFinishNode(FINISH_COOR);
+    newNodes.flat().forEach((node) => {
+      const { row, col } = node;
+      const nodeId = `${row}-${col}`;
+      nodesRef.current[nodeId]?.classList.remove(
+        "bg-green-300",
+        "text-green-800"
+      );
+    });
   };
 
   useEffect(() => {
