@@ -2,8 +2,9 @@ import { forwardRef, memo, TdHTMLAttributes } from "react";
 import { INode } from "../types/node.types";
 import { classNames } from "../utils";
 
-type Props = { _onDragStart: () => void } & INode &
-  TdHTMLAttributes<HTMLTableDataCellElement>;
+interface Props extends INode, TdHTMLAttributes<HTMLTableDataCellElement> {
+  _onDragStart: () => void;
+}
 
 const Node = forwardRef<HTMLTableDataCellElement, Props>(
   (
@@ -81,5 +82,7 @@ const Node = forwardRef<HTMLTableDataCellElement, Props>(
     );
   }
 );
+
+Node.displayName = "Node";
 
 export default Node;
