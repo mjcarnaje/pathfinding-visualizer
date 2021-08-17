@@ -49,8 +49,7 @@ const Home: NextPage = () => {
 
   const nodesRef = useRef<Record<string, HTMLTableDataCellElement | null>>({});
 
-  const toggleWall = (row: number, col: number, by: "click" | "drag"): void => {
-    if (by === "click" && !mouseIsPressed) return;
+  const toggleWall = (row: number, col: number): void => {
     setNodes((nodes) => {
       const newNodes = [...nodes];
       const node = newNodes[row][col];
@@ -60,19 +59,15 @@ const Home: NextPage = () => {
     });
   };
 
-  const onMouseUp = (): void => {
-    setMouseIsPressed(false);
-  };
-
   const animateAlgorithm = (visitedNodesInOrder: INode[]): void => {
     for (let nodeIdx = 0; nodeIdx < visitedNodesInOrder.length; nodeIdx++) {
       setTimeout(() => {
         const { row, col } = visitedNodesInOrder[nodeIdx];
         const nodeId = `${row}-${col}`;
-
-        const className = `${defaultNodeClassName} bg-green-300 text-green-800`;
-
-        nodesRef.current[nodeId]!.className = className;
+        nodesRef.current[nodeId]?.classList?.add(
+          "bg-green-300",
+          "text-green-800"
+        );
       }, 4 * nodeIdx);
     }
   };
@@ -97,8 +92,8 @@ const Home: NextPage = () => {
   return (
     <div className="min-h-screen">
       <Nav visualizeAlgorithm={visualizeAlgorithm} clearBoard={clearBoard} />
-      <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div className="my-8 grid place-content-center">
+      <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <div className="grid my-8 place-content-center">
           <table>
             <tbody>
               {nodes.map((rows, rowIdx) => (
@@ -115,16 +110,7 @@ const Home: NextPage = () => {
                           nodesRef.current[key] = nodeEl;
                         }}
                         {...col}
-                        onMouseDown={() => {
-                          if (activeNode) return;
-                          toggleWall(rowIdx, colIdx, "drag");
-                        }}
-                        onMouseEnter={() => {
-                          if (activeNode) return;
-                          toggleWall(rowIdx, colIdx, "click");
-                        }}
-                        onMouseUp={onMouseUp}
-                        onDragStartSpecialNode={() => {
+                        _onDragStart={() => {
                           setActiveNode(
                             col.isStart
                               ? "isStart"
@@ -133,15 +119,21 @@ const Home: NextPage = () => {
                               : null
                           );
                         }}
+                        onMouseDown={() => setMouseIsPressed(true)}
+                        onMouseUp={() => setMouseIsPressed(false)}
+                        onMouseOver={() => {}}
                         onDragEnter={(e) => {
-                          if (!specialNode) return;
-                          e.currentTarget.style.background = "red";
+                          e.currentTarget.classList.add("bg-gray-200");
                         }}
                         onDragLeave={(e) => {
-                          e.currentTarget.style.background = "";
+                          e.currentTarget.classList.remove("bg-gray-200");
                         }}
                         onDrop={(e) => {
                           if (!activeNode) return;
+
+                          e.preventDefault();
+
+                          e.currentTarget.classList.remove("bg-gray-200");
 
                           let coor: [number, number] =
                             activeNode === "isStart" ? _startNode : _finishNode;
@@ -149,38 +141,35 @@ const Home: NextPage = () => {
                           console.log("coor init: ", coor);
                           console.log("active_node: ", activeNode);
 
-                          setNodes((nodes) => {
-                            const newNodes = [...nodes];
+                          const newNodes = [...nodes];
 
-                            const _newNode = newNodes[rowIdx][colIdx];
-                            const _oldNode = newNodes[coor[0]][coor[1]];
+                          const _newNode = newNodes[rowIdx][colIdx];
+                          const _oldNode = newNodes[coor[0]][coor[1]];
 
-                            const newNode = {
-                              ..._newNode,
-                              [activeNode]: true,
-                            };
+                          const newNode = {
+                            ..._newNode,
+                            [activeNode]: true,
+                          };
 
-                            const oldNode = {
-                              ..._oldNode,
-                              [activeNode]: false,
-                            };
+                          const oldNode = {
+                            ..._oldNode,
+                            [activeNode]: false,
+                          };
 
-                            newNodes[rowIdx][colIdx] = newNode;
-                            newNodes[coor[0]][coor[1]] = oldNode;
+                          newNodes[coor[0]][coor[1]] = oldNode;
+                          newNodes[rowIdx][colIdx] = newNode;
 
-                            console.log("old node: ", oldNode);
-                            console.log("new node: ", newNode);
+                          console.log("old node: ", oldNode);
+                          console.log("new node: ", newNode);
 
-                            coor = [rowIdx, colIdx];
+                          coor = [rowIdx, colIdx];
 
-                            if (activeNode === "isStart") {
-                              _setStartNode(coor);
-                            } else {
-                              _setFinishNode(coor);
-                            }
-
-                            return newNodes;
-                          });
+                          setNodes(newNodes);
+                          if (activeNode === "isStart") {
+                            _setStartNode(coor);
+                          } else {
+                            _setFinishNode(coor);
+                          }
                         }}
                       />
                     );

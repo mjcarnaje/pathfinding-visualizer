@@ -1,8 +1,8 @@
-import { forwardRef, TdHTMLAttributes } from "react";
+import { forwardRef, memo, TdHTMLAttributes } from "react";
 import { INode } from "../types/node.types";
 import { classNames } from "../utils";
 
-type Props = { onDragStartSpecialNode: () => void } & INode &
+type Props = { _onDragStart: () => void } & INode &
   TdHTMLAttributes<HTMLTableDataCellElement>;
 
 export const defaultNodeClassName =
@@ -19,8 +19,9 @@ const Node = forwardRef<HTMLTableDataCellElement, Props>(
       isVisited,
       distance,
       previousNode,
-      onDragStartSpecialNode,
-      ...divEl
+      _onDragStart,
+      onMouseOver,
+      ...tdEl
     },
     ref
   ) => {
@@ -31,13 +32,13 @@ const Node = forwardRef<HTMLTableDataCellElement, Props>(
           isStart ? "" : isFinish ? "" : isWall ? "bg-gray-500" : "",
           defaultNodeClassName
         )}
-        {...divEl}
+        {...tdEl}
       >
         {isStart && (
-          <div draggable={true} onDragStart={onDragStartSpecialNode}>
+          <div draggable={true} onDragStart={_onDragStart}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 text-current"
+              className="w-5 h-5 text-current"
               viewBox="0 0 20 20"
               fill="currentColor"
             >
@@ -50,10 +51,10 @@ const Node = forwardRef<HTMLTableDataCellElement, Props>(
           </div>
         )}
         {isFinish && (
-          <div draggable={true} onDragStart={onDragStartSpecialNode}>
+          <div draggable={true} onDragStart={_onDragStart}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 text-current"
+              className="w-5 h-5 text-current"
               viewBox="0 0 20 20"
               fill="currentColor"
             >
