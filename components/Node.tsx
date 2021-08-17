@@ -26,13 +26,23 @@ const Node = forwardRef<HTMLTableDataCellElement, Props>(
       <td
         ref={ref}
         className={classNames(
-          isStart ? "" : isFinish ? "" : isWall ? "bg-gray-500" : "",
-          "w-6 h-6 inline-flex justify-center place-items-center border border-solid border-blue-300"
+          isStart
+            ? "cursor-move"
+            : isFinish
+            ? "cursor-move"
+            : isWall
+            ? "bg-gray-500"
+            : "",
+          "group w-6 h-6 inline-flex justify-center place-items-center border border-solid border-blue-300"
         )}
         {...tdEl}
       >
         {isStart && (
-          <div draggable={true} onDragStart={_onDragStart}>
+          <div
+            className="group-hover:scale-125"
+            draggable={true}
+            onDragStart={_onDragStart}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="w-5 h-5 text-[#14213d]"
@@ -48,7 +58,11 @@ const Node = forwardRef<HTMLTableDataCellElement, Props>(
           </div>
         )}
         {isFinish && (
-          <div draggable={true} onDragStart={_onDragStart}>
+          <div
+            className="group-hover:scale-125"
+            draggable={true}
+            onDragStart={_onDragStart}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="w-5 h-5 text-current"
