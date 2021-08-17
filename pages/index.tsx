@@ -59,6 +59,46 @@ const Home: NextPage = () => {
     });
   };
 
+  const onDropSpecialNode = (
+    e: DragEvent<HTMLTableDataCellElement>,
+    rowIdx: number,
+    colIdx: number
+  ): void => {
+    e.preventDefault();
+    e.currentTarget.classList.remove("bg-gray-200");
+
+    if (!activeNode) return;
+    const isStart = activeNode === "isStart";
+
+    let coor: [number, number] = isStart ? _startNode : _finishNode;
+
+    const newNodes = [...nodes];
+
+    const _newNode = newNodes[rowIdx][colIdx];
+    const _oldNode = newNodes[coor[0]][coor[1]];
+
+    const newNode = {
+      ..._newNode,
+      [activeNode]: true,
+    };
+    const oldNode = {
+      ..._oldNode,
+      [activeNode]: false,
+    };
+
+    newNodes[coor[0]][coor[1]] = oldNode;
+    newNodes[rowIdx][colIdx] = newNode;
+
+    coor = [rowIdx, colIdx];
+
+    setNodes(newNodes);
+    if (isStart) {
+      _setStartNode(coor);
+    } else {
+      _setFinishNode(coor);
+    }
+  };
+
   const animateAlgorithm = (visitedNodesInOrder: INode[]): void => {
     for (let nodeIdx = 0; nodeIdx < visitedNodesInOrder.length; nodeIdx++) {
       setTimeout(() => {
@@ -75,7 +115,6 @@ const Home: NextPage = () => {
   const visualizeAlgorithm = (): void => {
     const startNode = nodes[_startNode[0]][_startNode[1]];
     const finishNode = nodes[_finishNode[0]][_finishNode[1]];
-
     const visitedNodesInOrder = dijkstra(nodes, startNode, finishNode);
     animateAlgorithm(visitedNodesInOrder);
   };
@@ -101,8 +140,6 @@ const Home: NextPage = () => {
                   {rows.map((col, colIdx) => {
                     const key = `${rowIdx}-${colIdx}`;
 
-                    const specialNode = col.isStart || col.isFinish;
-
                     return (
                       <Node
                         key={key}
@@ -111,13 +148,12 @@ const Home: NextPage = () => {
                         }}
                         {...col}
                         _onDragStart={() => {
-                          setActiveNode(
-                            col.isStart
-                              ? "isStart"
-                              : col.isFinish
-                              ? "isFinish"
-                              : null
-                          );
+                          const _activeNode = col.isStart
+                            ? "isStart"
+                            : col.isFinish
+                            ? "isFinish"
+                            : null;
+                          setActiveNode(_activeNode);
                         }}
                         onMouseDown={() => setMouseIsPressed(true)}
                         onMouseUp={() => setMouseIsPressed(false)}
@@ -128,49 +164,7 @@ const Home: NextPage = () => {
                         onDragLeave={(e) => {
                           e.currentTarget.classList.remove("bg-gray-200");
                         }}
-                        onDrop={(e) => {
-                          if (!activeNode) return;
-
-                          e.preventDefault();
-
-                          e.currentTarget.classList.remove("bg-gray-200");
-
-                          let coor: [number, number] =
-                            activeNode === "isStart" ? _startNode : _finishNode;
-
-                          console.log("coor init: ", coor);
-                          console.log("active_node: ", activeNode);
-
-                          const newNodes = [...nodes];
-
-                          const _newNode = newNodes[rowIdx][colIdx];
-                          const _oldNode = newNodes[coor[0]][coor[1]];
-
-                          const newNode = {
-                            ..._newNode,
-                            [activeNode]: true,
-                          };
-
-                          const oldNode = {
-                            ..._oldNode,
-                            [activeNode]: false,
-                          };
-
-                          newNodes[coor[0]][coor[1]] = oldNode;
-                          newNodes[rowIdx][colIdx] = newNode;
-
-                          console.log("old node: ", oldNode);
-                          console.log("new node: ", newNode);
-
-                          coor = [rowIdx, colIdx];
-
-                          setNodes(newNodes);
-                          if (activeNode === "isStart") {
-                            _setStartNode(coor);
-                          } else {
-                            _setFinishNode(coor);
-                          }
-                        }}
+                        onDrop={(e) => onDropSpecialNode(e, rowIdx, colIdx)}
                       />
                     );
                   })}
