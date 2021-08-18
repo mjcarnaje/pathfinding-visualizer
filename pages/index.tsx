@@ -95,11 +95,11 @@ const Home: NextPage = () => {
 
   const visitedClassNames = [
     "bg-[#56cfe1]",
-    "border-white",
+    "!border-white",
     "motion-safe:animate-nodeVisitedAnimation",
   ];
 
-  const shortestPathClassNames = ["bg-yellow-500"];
+  const shortestPathClassNames = ["!border-white", "bg-yellow-500"];
 
   const removeVisitedClassNames = (_nodes: INode[][]): void => {
     _nodes.flat().forEach((_node) => {
