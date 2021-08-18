@@ -100,14 +100,17 @@ const Home: NextPage = () => {
     }
   };
 
+  const visitedClassNames = [
+    "bg-[#56cfe1]",
+    "border-gray-100",
+    "motion-safe:animate-nodeVisitedAnimation",
+  ];
+
   const removeVisitedClassNames = (_nodes: INode[][]): void => {
     _nodes.flat().forEach((_node) => {
       const { row, col } = _node;
       const nodeId = `${row}-${col}`;
-      nodesRef.current[nodeId]?.classList.remove(
-        "bg-[#56cfe1]",
-        "motion-safe:animate-nodeVisitedAnimation"
-      );
+      nodesRef.current[nodeId]?.classList.remove(...visitedClassNames);
     });
   };
 
@@ -116,11 +119,7 @@ const Home: NextPage = () => {
       setTimeout(() => {
         const { row, col, isStart, isFinish } = node;
         const nodeId = `${row}-${col}`;
-        nodesRef.current[nodeId]?.classList.add(
-          "bg-[#56cfe1]",
-          "motion-safe:animate-nodeVisitedAnimation"
-        );
-
+        nodesRef.current[nodeId]?.classList.add(...visitedClassNames);
         if (isStart) setIsRunning(true);
         if (isFinish) setIsRunning(false);
       }, 20 * nodeIdx);
