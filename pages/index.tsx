@@ -1,25 +1,19 @@
 import type { NextPage } from "next";
 import { DragEvent, useEffect, useRef, useState } from "react";
-import { dijkstra } from "../algorigthms/dijkstra";
+import { dijkstra, getNodesInShortestPathOrder } from "../algorigthms/dijkstra";
 import Nav from "../components/Nav";
 import Node from "../components/Node";
-import { INode, Tuple } from "../types";
-
-// DEFAULT VALUES
-const NUM_COLS: number = 17;
-const NUM_ROWS: number = 49;
-const START_COOR: Tuple = [8, 8];
-const FINISH_COOR: Tuple = [8, 40];
-
-const isEqual = (a: Tuple, b: Tuple) => JSON.stringify(a) === JSON.stringify(b);
+import { FINISH_COOR, NUM_COLS, NUM_ROWS, START_COOR } from "../constant";
+import { IActiveNode, ICoor, INode, Maybe } from "../types";
+import { getNodeId, isEqual } from "../utils";
 
 const createNode = (col: number, row: number): INode => {
   return {
-    row,
     col,
+    row,
     distance: Infinity,
-    isStart: isEqual([row, col], START_COOR),
-    isFinish: isEqual([row, col], FINISH_COOR),
+    isStart: isEqual([col, row], START_COOR),
+    isFinish: isEqual([col, row], FINISH_COOR),
     isVisited: false,
     isWall: false,
     previousNode: null,
@@ -27,43 +21,42 @@ const createNode = (col: number, row: number): INode => {
 };
 
 const generateEmptyGrid = (): INode[][] => {
-  const rows = [];
-  for (let row = 0; row < NUM_COLS; row++) {
+  const grid = [];
+  for (let col = 0; col < NUM_COLS; col++) {
     const cols = [];
-    for (let col = 0; col < NUM_ROWS; col++) {
+    for (let row = 0; row < NUM_ROWS; row++) {
       cols.push(createNode(col, row));
     }
-    rows.push(cols);
+    grid.push(cols);
   }
-  return rows;
+  return grid;
 };
 
 const Home: NextPage = () => {
   const [nodes, setNodes] = useState<INode[][]>(generateEmptyGrid);
-  const [_startNode, _setStartNode] = useState<Tuple>(START_COOR);
-  const [_finishNode, _setFinishNode] = useState<Tuple>(FINISH_COOR);
-  const [activeNode, setActiveNode] = useState<"isStart" | "isFinish" | null>(
-    null
-  );
+  const [_startNode, _setStartNode] = useState<ICoor>(START_COOR);
+  const [_finishNode, _setFinishNode] = useState<ICoor>(FINISH_COOR);
+  const [activeNode, setActiveNode] = useState<Maybe<IActiveNode>>(null);
   const [mouseIsPressed, setMouseIsPressed] = useState(false);
-  const [isRunning, setIsRunning] = useState(false);
+  const [isVisualizing, setIsVisualizing] = useState(false);
+  const [ms, setMs] = useState(10);
 
   const nodesRef = useRef<Record<string, HTMLDivElement | null>>({});
 
-  const toggleWall = (row: number, col: number): void => {
+  const toggleWall = (col: number, row: number): void => {
     setNodes((nodes) => {
       const newNodes = [...nodes];
-      const node = newNodes[row][col];
+      const node = newNodes[col][row];
       const newNode = { ...node, isWall: !node.isWall };
-      newNodes[row][col] = newNode;
+      newNodes[col][row] = newNode;
       return newNodes;
     });
   };
 
   const onDropSpecialNode = (
     e: DragEvent<HTMLDivElement>,
-    rowIdx: number,
-    colIdx: number
+    colIdx: number,
+    rowIdx: number
   ): void => {
     e.preventDefault();
     e.currentTarget.classList.remove("bg-gray-200");
@@ -75,7 +68,7 @@ const Home: NextPage = () => {
 
     const newNodes = [...nodes];
 
-    const _newNode = newNodes[rowIdx][colIdx];
+    const _newNode = newNodes[colIdx][rowIdx];
     const _oldNode = newNodes[coor[0]][coor[1]];
 
     const newNode = {
@@ -88,9 +81,9 @@ const Home: NextPage = () => {
     };
 
     newNodes[coor[0]][coor[1]] = oldNode;
-    newNodes[rowIdx][colIdx] = newNode;
+    newNodes[colIdx][rowIdx] = newNode;
 
-    coor = [rowIdx, colIdx];
+    coor = [colIdx, rowIdx];
 
     setNodes(newNodes);
     if (isStart) {
@@ -106,32 +99,54 @@ const Home: NextPage = () => {
     "motion-safe:animate-nodeVisitedAnimation",
   ];
 
+  const shortestPathClassNames = ["bg-yellow-500"];
+
   const removeVisitedClassNames = (_nodes: INode[][]): void => {
     _nodes.flat().forEach((_node) => {
-      const { row, col } = _node;
-      const nodeId = `${row}-${col}`;
+      const { col, row } = _node;
+      const nodeId = getNodeId(col, row);
       nodesRef.current[nodeId]?.classList.remove(...visitedClassNames);
     });
   };
 
-  const animateAlgorithm = (sortedVisitedNodes: INode[]): void => {
-    sortedVisitedNodes.forEach((node, nodeIdx) => {
+  const animateShortestPath = (nodesInShortestPathOrder: INode[]): void => {
+    nodesInShortestPathOrder.forEach(({ col, row }, nodeIdx) => {
       setTimeout(() => {
-        const { row, col, isStart, isFinish } = node;
-        const nodeId = `${row}-${col}`;
+        const nodeId = getNodeId(col, row);
+        nodesRef.current[nodeId]?.classList.add(...shortestPathClassNames);
+      }, ms * nodeIdx);
+    });
+  };
+
+  const animateAlgorithm = (
+    sortedVisitedNodes: INode[],
+    nodesInShortestPathOrder: INode[]
+  ): void => {
+    sortedVisitedNodes.forEach((node, nodeIdx) => {
+      const { col, row, isStart, isFinish } = node;
+
+      setTimeout(() => {
+        const nodeId = getNodeId(col, row);
         nodesRef.current[nodeId]?.classList.add(...visitedClassNames);
-        if (isStart) setIsRunning(true);
-        if (isFinish) setIsRunning(false);
-      }, 20 * nodeIdx);
+
+        if (isStart) {
+          setIsVisualizing(true);
+        }
+        if (isFinish) {
+          setIsVisualizing(false);
+          animateShortestPath(nodesInShortestPathOrder);
+        }
+      }, ms * nodeIdx);
     });
   };
 
   const visualizeAlgorithm = (): void => {
+    removeVisitedClassNames(nodes);
     const startNode = nodes[_startNode[0]][_startNode[1]];
     const finishNode = nodes[_finishNode[0]][_finishNode[1]];
     const sortedVisitedNodes = dijkstra(nodes, startNode, finishNode);
-    removeVisitedClassNames(nodes);
-    animateAlgorithm(sortedVisitedNodes);
+    const nodesInShortestPathOrder = getNodesInShortestPathOrder(finishNode);
+    animateAlgorithm(sortedVisitedNodes, nodesInShortestPathOrder);
   };
 
   const clearBoard = (): void => {
@@ -150,16 +165,16 @@ const Home: NextPage = () => {
     <div className="min-h-screen">
       <Nav
         visualizeAlgorithm={visualizeAlgorithm}
-        disableButtons={isRunning}
+        disableButtons={isVisualizing}
         clearBoard={clearBoard}
       />
       <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
         <div className="grid my-8 place-content-center">
           <div className="shadow-lg">
-            {nodes.map((rows, rowIdx) => (
-              <div className="flex" key={rowIdx}>
-                {rows.map((col, colIdx) => {
-                  const key = `${rowIdx}-${colIdx}`;
+            {nodes.map((col, colIdx) => (
+              <div className="flex" key={colIdx}>
+                {col.map((row, rowIdx) => {
+                  const key = `${colIdx}-${rowIdx}`;
 
                   return (
                     <Node
@@ -167,11 +182,11 @@ const Home: NextPage = () => {
                       ref={(nodeEl) => {
                         nodesRef.current[key] = nodeEl;
                       }}
-                      {...col}
+                      {...row}
                       _onDragStart={() => {
-                        const _activeNode = col.isStart
+                        const _activeNode = row.isStart
                           ? "isStart"
-                          : col.isFinish
+                          : row.isFinish
                           ? "isFinish"
                           : null;
                         setActiveNode(_activeNode);
@@ -185,7 +200,7 @@ const Home: NextPage = () => {
                       onDragLeave={(e) => {
                         e.currentTarget.classList.remove("bg-gray-200");
                       }}
-                      onDrop={(e) => onDropSpecialNode(e, rowIdx, colIdx)}
+                      onDrop={(e) => onDropSpecialNode(e, colIdx, rowIdx)}
                     />
                   );
                 })}

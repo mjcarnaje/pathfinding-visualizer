@@ -20,10 +20,10 @@ function getUnvisitedNeighbors(closestNode: INode, nodes: INode[][]) {
 
   const { col, row } = closestNode;
 
-  if (row > 0) neighbors.push(nodes[row - 1][col]);
-  if (row < nodes.length - 1) neighbors.push(nodes[row + 1][col]);
-  if (col > 0) neighbors.push(nodes[row][col - 1]);
-  if (col < nodes[0].length - 1) neighbors.push(nodes[row][col + 1]);
+  if (col > 0) neighbors.push(nodes[col - 1][row]);
+  if (col < nodes.length - 1) neighbors.push(nodes[col + 1][row]);
+  if (row > 0) neighbors.push(nodes[col][row - 1]);
+  if (row < nodes[0].length - 1) neighbors.push(nodes[col][row + 1]);
 
   return neighbors.filter((neighbor) => !neighbor.isVisited);
 }
@@ -59,4 +59,16 @@ export function dijkstra(
   }
 
   return visitedNodesInOrder;
+}
+
+export function getNodesInShortestPathOrder(finishNode: INode | null): INode[] {
+  const nodesInShortestPathOrder = [];
+  let currentNode = finishNode;
+
+  while (currentNode !== null) {
+    nodesInShortestPathOrder.unshift(currentNode);
+    currentNode = currentNode.previousNode;
+  }
+
+  return nodesInShortestPathOrder;
 }
