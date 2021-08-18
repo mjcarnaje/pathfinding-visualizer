@@ -95,7 +95,7 @@ const Home: NextPage = () => {
 
   const visitedClassNames = [
     "bg-[#56cfe1]",
-    "border-gray-100",
+    "border-white",
     "motion-safe:animate-nodeVisitedAnimation",
   ];
 
@@ -105,17 +105,22 @@ const Home: NextPage = () => {
     _nodes.flat().forEach((_node) => {
       const { col, row } = _node;
       const nodeId = getNodeId(col, row);
-      nodesRef.current[nodeId]?.classList.remove(...visitedClassNames);
+      nodesRef.current[nodeId]?.classList.remove(
+        ...visitedClassNames,
+        ...shortestPathClassNames
+      );
     });
   };
 
   const animateShortestPath = (nodesInShortestPathOrder: INode[]): void => {
-    nodesInShortestPathOrder.forEach(({ col, row }, nodeIdx) => {
-      setTimeout(() => {
-        const nodeId = getNodeId(col, row);
-        nodesRef.current[nodeId]?.classList.add(...shortestPathClassNames);
-      }, ms * nodeIdx);
-    });
+    setTimeout(() => {
+      nodesInShortestPathOrder.forEach(({ col, row }, nodeIdx) => {
+        setTimeout(() => {
+          const nodeId = getNodeId(col, row);
+          nodesRef.current[nodeId]?.classList.add(...shortestPathClassNames);
+        }, ms * nodeIdx);
+      });
+    }, 500);
   };
 
   const animateAlgorithm = (
@@ -155,6 +160,7 @@ const Home: NextPage = () => {
     removeVisitedClassNames(newNodes);
     _setStartNode(START_COOR);
     _setFinishNode(FINISH_COOR);
+    setIsVisualizing(false);
   };
 
   useEffect(() => {
