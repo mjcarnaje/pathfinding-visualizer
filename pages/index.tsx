@@ -32,6 +32,14 @@ const generateEmptyGrid = (): INode[][] => {
   return grid;
 };
 
+const toggleWall = (nodes: INode[][], col: number, row: number): INode[][] => {
+  const newNodes = [...nodes];
+  const node = newNodes[col][row];
+  const newNode = { ...node, isWall: !node.isWall };
+  newNodes[col][row] = newNode;
+  return newNodes;
+};
+
 const Home: NextPage = () => {
   const [nodes, setNodes] = useState<INode[][]>(generateEmptyGrid);
   const [_startNode, _setStartNode] = useState<ICoor>(START_COOR);
@@ -39,19 +47,10 @@ const Home: NextPage = () => {
   const [activeNode, setActiveNode] = useState<Maybe<IActiveNode>>(null);
   const [mouseIsPressed, setMouseIsPressed] = useState(false);
   const [isVisualizing, setIsVisualizing] = useState(false);
-  const [ms, setMs] = useState(10);
+  const [isVisualized, setIsVisualized] = useState(false);
+  const [animationInMs, setAnimationInMs] = useState(10);
 
   const nodesRef = useRef<Record<string, HTMLDivElement | null>>({});
-
-  const toggleWall = (col: number, row: number): void => {
-    setNodes((nodes) => {
-      const newNodes = [...nodes];
-      const node = newNodes[col][row];
-      const newNode = { ...node, isWall: !node.isWall };
-      newNodes[col][row] = newNode;
-      return newNodes;
-    });
-  };
 
   const onDropSpecialNode = (
     e: DragEvent<HTMLDivElement>,
@@ -118,7 +117,7 @@ const Home: NextPage = () => {
         setTimeout(() => {
           const nodeId = getNodeId(col, row);
           nodesRef.current[nodeId]?.classList.add(...shortestPathClassNames);
-        }, ms * nodeIdx);
+        }, animationInMs * nodeIdx);
       });
     }, 500);
   };
@@ -139,9 +138,10 @@ const Home: NextPage = () => {
         }
         if (isFinish) {
           setIsVisualizing(false);
+          setIsVisualized(true);
           animateShortestPath(nodesInShortestPathOrder);
         }
-      }, ms * nodeIdx);
+      }, animationInMs * nodeIdx);
     });
   };
 
@@ -161,6 +161,7 @@ const Home: NextPage = () => {
     _setStartNode(START_COOR);
     _setFinishNode(FINISH_COOR);
     setIsVisualizing(false);
+    setIsVisualized(false);
   };
 
   useEffect(() => {
@@ -197,9 +198,23 @@ const Home: NextPage = () => {
                           : null;
                         setActiveNode(_activeNode);
                       }}
-                      onMouseDown={() => setMouseIsPressed(true)}
-                      onMouseUp={() => setMouseIsPressed(false)}
-                      onMouseOver={() => {}}
+                      onMouseDown={() => {
+                        if (isVisualizing || isVisualized) return;
+                        const newNodes = toggleWall(nodes, colIdx, rowIdx);
+                        setNodes(newNodes);
+                        setMouseIsPressed(true);
+                      }}
+                      onMouseUp={() => {
+                        if (isVisualizing || isVisualized) return;
+                        setMouseIsPressed(false);
+                      }}
+                      onMouseEnter={() => {
+                        if (isVisualizing || isVisualized || !mouseIsPressed) {
+                          return;
+                        }
+                        const newNodes = toggleWall(nodes, colIdx, rowIdx);
+                        setNodes(newNodes);
+                      }}
                       onDragEnter={(e) => {
                         e.currentTarget.classList.add("bg-gray-200");
                       }}
