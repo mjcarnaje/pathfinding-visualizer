@@ -5,9 +5,9 @@ import Nav from "../components/Nav";
 import Node from "../components/Node";
 import { INode, Tuple } from "../types";
 
-// DEFAULT
-const NUM_ROWS: number = 17;
-const NUM_COLS: number = 49;
+// DEFAULT VALUES
+const NUM_COLS: number = 17;
+const NUM_ROWS: number = 49;
 const START_COOR: Tuple = [8, 8];
 const FINISH_COOR: Tuple = [8, 40];
 
@@ -28,9 +28,9 @@ const createNode = (col: number, row: number): INode => {
 
 const generateEmptyGrid = (): INode[][] => {
   const rows = [];
-  for (let row = 0; row < NUM_ROWS; row++) {
+  for (let row = 0; row < NUM_COLS; row++) {
     const cols = [];
-    for (let col = 0; col < NUM_COLS; col++) {
+    for (let col = 0; col < NUM_ROWS; col++) {
       cols.push(createNode(col, row));
     }
     rows.push(cols);
@@ -48,7 +48,7 @@ const Home: NextPage = () => {
   const [mouseIsPressed, setMouseIsPressed] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
 
-  const nodesRef = useRef<Record<string, HTMLTableDataCellElement | null>>({});
+  const nodesRef = useRef<Record<string, HTMLDivElement | null>>({});
 
   const toggleWall = (row: number, col: number): void => {
     setNodes((nodes) => {
@@ -61,7 +61,7 @@ const Home: NextPage = () => {
   };
 
   const onDropSpecialNode = (
-    e: DragEvent<HTMLTableDataCellElement>,
+    e: DragEvent<HTMLDivElement>,
     rowIdx: number,
     colIdx: number
   ): void => {
@@ -123,7 +123,7 @@ const Home: NextPage = () => {
 
         if (isStart) setIsRunning(true);
         if (isFinish) setIsRunning(false);
-      }, 15 * nodeIdx);
+      }, 20 * nodeIdx);
     });
   };
 
@@ -156,45 +156,43 @@ const Home: NextPage = () => {
       />
       <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
         <div className="grid my-8 place-content-center">
-          <table>
-            <tbody>
-              {nodes.map((rows, rowIdx) => (
-                <tr key={rowIdx}>
-                  {rows.map((col, colIdx) => {
-                    const key = `${rowIdx}-${colIdx}`;
+          <div className="shadow-lg">
+            {nodes.map((rows, rowIdx) => (
+              <div className="flex" key={rowIdx}>
+                {rows.map((col, colIdx) => {
+                  const key = `${rowIdx}-${colIdx}`;
 
-                    return (
-                      <Node
-                        key={key}
-                        ref={(nodeEl) => {
-                          nodesRef.current[key] = nodeEl;
-                        }}
-                        {...col}
-                        _onDragStart={() => {
-                          const _activeNode = col.isStart
-                            ? "isStart"
-                            : col.isFinish
-                            ? "isFinish"
-                            : null;
-                          setActiveNode(_activeNode);
-                        }}
-                        onMouseDown={() => setMouseIsPressed(true)}
-                        onMouseUp={() => setMouseIsPressed(false)}
-                        onMouseOver={() => {}}
-                        onDragEnter={(e) => {
-                          e.currentTarget.classList.add("bg-gray-200");
-                        }}
-                        onDragLeave={(e) => {
-                          e.currentTarget.classList.remove("bg-gray-200");
-                        }}
-                        onDrop={(e) => onDropSpecialNode(e, rowIdx, colIdx)}
-                      />
-                    );
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  return (
+                    <Node
+                      key={key}
+                      ref={(nodeEl) => {
+                        nodesRef.current[key] = nodeEl;
+                      }}
+                      {...col}
+                      _onDragStart={() => {
+                        const _activeNode = col.isStart
+                          ? "isStart"
+                          : col.isFinish
+                          ? "isFinish"
+                          : null;
+                        setActiveNode(_activeNode);
+                      }}
+                      onMouseDown={() => setMouseIsPressed(true)}
+                      onMouseUp={() => setMouseIsPressed(false)}
+                      onMouseOver={() => {}}
+                      onDragEnter={(e) => {
+                        e.currentTarget.classList.add("bg-gray-200");
+                      }}
+                      onDragLeave={(e) => {
+                        e.currentTarget.classList.remove("bg-gray-200");
+                      }}
+                      onDrop={(e) => onDropSpecialNode(e, rowIdx, colIdx)}
+                    />
+                  );
+                })}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

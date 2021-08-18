@@ -1,12 +1,12 @@
-import { forwardRef, memo, TdHTMLAttributes } from "react";
+import { forwardRef, HTMLAttributes } from "react";
 import { INode } from "../types/node.types";
 import { classNames } from "../utils";
 
-interface Props extends INode, TdHTMLAttributes<HTMLTableDataCellElement> {
+interface Props extends INode, HTMLAttributes<HTMLDivElement> {
   _onDragStart: () => void;
 }
 
-const Node = forwardRef<HTMLTableDataCellElement, Props>(
+const Node = forwardRef<HTMLDivElement, Props>(
   (
     {
       col,
@@ -19,12 +19,12 @@ const Node = forwardRef<HTMLTableDataCellElement, Props>(
       previousNode,
       _onDragStart,
       onMouseOver,
-      ...tdEl
+      ...divEl
     },
     ref
   ) => {
     return (
-      <td
+      <div
         ref={ref}
         className={classNames(
           isStart
@@ -36,7 +36,7 @@ const Node = forwardRef<HTMLTableDataCellElement, Props>(
             : "",
           "group w-6 h-6 inline-flex justify-center place-items-center border border-solid border-blue-300"
         )}
-        {...tdEl}
+        {...divEl}
       >
         {isStart && (
           <div
@@ -78,7 +78,7 @@ const Node = forwardRef<HTMLTableDataCellElement, Props>(
             </svg>
           </div>
         )}
-      </td>
+      </div>
     );
   }
 );
